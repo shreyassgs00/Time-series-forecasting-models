@@ -7,7 +7,7 @@ from statsmodels.tsa.ar_model import AutoReg
 from statsmodels.tsa.stattools import adfuller
 from statsmodels.graphics.tsaplots import plot_pacf
 
-data = pd.read_csv('month_dataset/RS.csv')
+data = pd.read_csv('month_dataset/AMC.csv')
 plt.plot(data['Close'])
 plt.xlabel('Samples')
 plt.ylabel('Stock price (in $)')
@@ -31,8 +31,8 @@ plt.title('Partial autocorrelation plot')
 plt.show()
 
 
-train_data = data['Close'][:len(data)-5]
-test_data = data['Close'][len(data)-5:]
+train_data = data['Close'][:len(data)-100]
+test_data = data['Close'][len(data)-100:]
 
 ar_model = AutoReg(train_data, lags = 2).fit()
 
@@ -62,4 +62,24 @@ plt.xlabel('Samples')
 plt.ylabel('Error')
 plt.show()
 
-percentage_accuracy = 0
+def find_variance(data):
+    sum = 0
+    for i in data:
+        sum = sum + i
+    mean = sum/len(data)
+    squared_sum = 0
+    for j in data:
+        squared_sum = squared_sum + j**2
+    squared_sum_mean = squared_sum/len(data)
+    variance = squared_sum_mean - (mean)**2
+    return variance
+
+error_variance = find_variance(error)
+data_variance = find_variance(test_data)
+
+def find_percent_accuracy(error_variance, data_variance):
+    percent_accuracy = (1 - (error_variance/data_variance))*100
+    return percent_accuracy
+
+percent_accuracy = find_percent_accuracy(error_variance, data_variance)
+print('Percentage accuracy: ', percent_accuracy)
